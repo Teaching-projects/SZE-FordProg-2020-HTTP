@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Date: Wed, 01 Jul 2020 07:55:15 GMT
+Content-Type: application/xml; charset=utf-8
+Content-Length: 130
+Transfer-Encoding: chunked
+Connection: keep-alive
+Set-Cookie: __cfduid=d0a7026a5a10ccaca01af9254d5186c111593590115; expires=Fri, 31-Jul-20 07:55:15 GMT; path=/; domain=.reqbin.com; HttpOnly; SameSite=Lax; Secure
+CF-Cache-Status: DYNAMIC
+cf-request-id: 03aaf885360000f035a0be8200000001
+Expect-CT: max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+Server: cloudflare
+CF-RAY: 5abe904eb9f0f035-EWR
+Content-Encoding: gzip
+
+<?xml version="1.0" encoding="utf-8"?><Response><ResponseCode>0</ResponseCode><ResponseMessage>Success</ResponseMessage></Response>

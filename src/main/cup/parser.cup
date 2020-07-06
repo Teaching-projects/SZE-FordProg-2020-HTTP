@@ -1,0 +1,139 @@
+import java.util.*;
+import java.io.*;
+import java_cup.runtime.*;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+
+parser code {:
+    static Map<String, String> headerFieldNameValueMap;
+    static StringBuffer string;
+    static Boolean isJson;
+    static Boolean valid;
+
+    public static void main(String args[]) {
+        SymbolFactory sf = new DefaultSymbolFactory();
+        try {
+            for (String arg : args) {
+                headerFieldNameValueMap = new HashMap<>();
+                string = new StringBuffer();
+                isJson = false;
+                valid = true;
+
+                Parser parser = new Parser(new Scanner(new java.io.FileInputStream(arg), sf), sf);
+                parser.parse();
+
+                if (isJson) {
+                    System.out.println("JSON request content");
+                } else {
+                    System.out.println("XML request content");
+                }
+
+                if (headerFieldNameValueMap.containsKey("Content-Type")) {
+                    String value = headerFieldNameValueMap.get("Content-Type");
+                    if (value.contains("application/xml") && !isJson) {
+                        System.out.println("Valid XML request");
+                    } else if (value.contains("application/json") && isJson) {
+                        System.out.println("Valid JSON request");
+                    } else {
+                        System.out.println("Invalid type request:" + value.split(";")[0]);
+                        valid = false;
+                    }
+                }
+                if (headerFieldNameValueMap.containsKey("Content-Length")) {
+                    String value = headerFieldNameValueMap.get("Content-Length");
+                    System.out.println("Content-Length: " + value.trim());
+                    if (string.length() + 1 == Integer.valueOf(value.trim())) {
+                        System.out.println("Content-Length matching");
+                    } else {
+                        System.out.println("Content-Length not matching");
+                        valid = false;
+                    }
+                }
+                if (valid) {
+                    System.out.println("This is a valid HTTP request file");
+                } else {
+                    System.out.println("This is an invalid HTTP request file");
+                }
+                System.out.println("");
+            }
+        } catch (Exception e) {
+            //System.exit(1); // Send error exit code to calling program
+        }
+    }
+:}
+
+//content lengthhez próba
+terminal String STRING_LITERAL;
+//http request adatok
+terminal HTTP_VERSION, METHOD, PATH, STATUS_CODE_AND_RESON;
+terminal String SIMPLE_STRING, HEADER_FIELD_VALUE;
+//json feldolgozás
+terminal COMMA, COLON;
+terminal LEFT_BRACE, RIGHT_BRACE, LEFT_SQUARE_BRACKET, RIGHT_SQUARE_BRACKET;
+terminal TRUE, FALSE, NULL, NUMBER_WITH_FRACTION, STRING;
+//xml feldolgozás
+terminal XML_VERSION, XML_OPEN, XML_CLOSE;
+
+//http request adatok
+non terminal http_request;
+non terminal start_line, http_header_element, http_body;
+non terminal String header, header_field_name;
+non terminal json_body_cotent, xml_body_content;
+//json feldolgozás
+non terminal array, object, key_value_list, key_value, value_list, value;
+//xml feldolgozás
+non terminal xml_elements, xml_value;
+
+//-------------------------------------------
+
+start with http_request;
+
+http_request ::= start_line http_header_element http_body;
+
+start_line ::= HTTP_VERSION STATUS_CODE_AND_RESON
+| METHOD PATH HTTP_VERSION;
+
+http_header_element ::= /*empty*/
+| http_header_element:hhe header:hd {: RESULT = hhe + hd; :};
+
+header ::= header_field_name:hfn COLON:c HEADER_FIELD_VALUE:hfv {: RESULT = hfn + c + hfv; headerFieldNameValueMap.put(hfn, hfv); :};
+
+header_field_name ::= SIMPLE_STRING:ss {: RESULT =ss; :};
+
+http_body ::= /*empty*/
+| json_body_cotent {: isJson = true; :}
+| xml_body_content;
+
+xml_body_content ::= XML_VERSION:value xml_elements {: string.append(value); :}
+| xml_elements;
+
+xml_elements ::= XML_OPEN:xo xml_value XML_CLOSE:xc {: string.append(xo); string.append(xc); :};
+
+xml_value ::= xml_elements
+| xml_value xml_elements
+| SIMPLE_STRING:value {: string.append(value); :}
+| NUMBER_WITH_FRACTION:value {: string.append(value); :};
+
+json_body_cotent ::= object:jbco {: RESULT = jbco; :}
+| array:jbca {: RESULT = jbca; :};
+
+value ::= STRING:value {: string.append(value); :}
+| NUMBER_WITH_FRACTION:value {: string.append(value); :}
+| object
+| array
+| TRUE:value {: string.append(value); :}
+| FALSE:value {: string.append(value); :}
+| NULL:value {: string.append(value); :};
+
+object ::= LEFT_BRACE:lb RIGHT_BRACE:rb {: string.append(lb); string.append(rb); :}
+| LEFT_BRACE:lb key_value_list RIGHT_BRACE:rb {: string.append(lb); string.append(rb); :};
+
+array ::= LEFT_SQUARE_BRACKET:lsb RIGHT_SQUARE_BRACKET:rsb {: string.append(lsb); string.append(rsb); :}
+| LEFT_SQUARE_BRACKET:lsb value_list RIGHT_SQUARE_BRACKET:rsb {: string.append(lsb); string.append(rsb); :};
+
+key_value ::= STRING:s COLON:c value {: string.append(s); string.append(c); :};
+
+key_value_list ::= key_value_list COMMA:c key_value {: string.append(c); :}
+| key_value;
+
+value_list ::= value_list COMMA:c value {: string.append(c); :}
+| value;
