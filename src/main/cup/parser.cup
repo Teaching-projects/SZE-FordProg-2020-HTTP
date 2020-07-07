@@ -61,8 +61,6 @@ parser code {:
     }
 :}
 
-//content lengthhez próba
-terminal String STRING_LITERAL;
 //http request adatok
 terminal HTTP_VERSION, METHOD, PATH, STATUS_CODE_AND_RESON;
 terminal String SIMPLE_STRING, HEADER_FIELD_VALUE;

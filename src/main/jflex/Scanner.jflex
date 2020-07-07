@@ -43,8 +43,6 @@ xml_version = (<\?xml)(.*)(\?>)
 xml_open = <([a-zA-Z]*)>
 xml_close = <\/([a-zA-Z]*)>
 
-%state STRING
-
 %%
 "," { return sf.newSymbol("Comma",Symbols.COMMA, yytext()); }
 ":" { return sf.newSymbol("Colon",Symbols.COLON, yytext()); }
