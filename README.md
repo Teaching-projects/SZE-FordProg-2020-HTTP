@@ -47,8 +47,6 @@
     
     <?xml version="1.0" encoding="utf-8"?><Response><ResponseCode>0</ResponseCode><ResponseMessage>Success</ResponseMessage></Response>
 
-
-    
 ## HTTP request feldolgozás:
 
 ### Terminálisok, nem terminálisok
@@ -74,7 +72,6 @@
      
 ### Makrók
 
-    //Makrók
     http_version = (HTTP\/)(1\.1|2\.0)
     method = [GET | HEAD | POST | PUT | DELETE]
     path = \/(.*)
@@ -93,6 +90,7 @@
     xml_close = <\/([a-zA-Z]*)>
 
 ###Tokenek
+
     "," { return sf.newSymbol("Comma",Symbols.COMMA, yytext()); }
     ":" { return sf.newSymbol("Colon",Symbols.COLON, yytext()); }
     
