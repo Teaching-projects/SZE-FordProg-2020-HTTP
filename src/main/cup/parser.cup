@@ -92,8 +92,7 @@ http_header_element ::= /*empty*/
                                            RESULT = hhe;
                                        }:};
 
-header ::= header_field_name:hfn COLON:c HEADER_FIELD_VALUE:hfv {: if(hfn.contains("Content-Type") || hfn.contains("Content-Length")) {RESULT = hfv; }:};
-}
+header ::= header_field_name:hfn COLON:c HEADER_FIELD_VALUE:hfv {: if(hfn.contains("Content-Type") || hfn.contains("Content-Length")) {RESULT = hfv; }:};}
 
 header_field_name ::= SIMPLE_STRING:ss {: RESULT =ss; :};
 
